@@ -1,0 +1,23 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: elastic-search-index-rotator
+  namespace: staging
+spec:
+  failedJobsHistoryLimit: 2
+  successfulJobsHistoryLimit: 2
+  schedule: "*/3 * * * *"
+  jobTemplate:
+     spec:
+      template:
+        spec:
+          containers:
+           - name: index-rotator
+             #image: ${AWS_REPOSITORY_URL}/${REPOSITORY_NAME}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
+             image: almerico/elastic_search_index_rotator:latest
+             envFrom:
+              - configMapRef:
+                  name: safe-core-config
+          restartPolicy: Never
+          nodeSelector:
+              nodegroup: production
